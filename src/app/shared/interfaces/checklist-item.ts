@@ -1,4 +1,4 @@
-import { RemoveChecklist } from './checklist';
+import { ChecklistId } from './checklist';
 
 export interface ChecklistItem {
   id: string;
@@ -9,7 +9,7 @@ export interface ChecklistItem {
 
 export type AddChecklistItem = {
   item: Omit<ChecklistItem, 'id' | 'checklistId' | 'checked'>;
-  checklistId: RemoveChecklist;
+  checklistId: ChecklistId;
 };
 
 export type EditChecklistItem = {
@@ -17,4 +17,4 @@ export type EditChecklistItem = {
   data: AddChecklistItem['item'];
 };
 
-export type RemoveChecklistItem = ChecklistItem['id'];
+export type ChecklistItemId = ChecklistItem['id'];
