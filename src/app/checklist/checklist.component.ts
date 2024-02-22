@@ -25,7 +25,12 @@ import { ChecklistItemListComponent } from './ui/checklist-item-list.component';
       (reset)="checklistItemService.reset$.next($event)"
       [checklist]="checklist"
     />
-    <app-checklist-item-list (toggle)="checklistItemService.toggle$.next($event)" [checklistItems]="checklistItems()" />
+    <app-checklist-item-list
+      [checklistItems]="checklistItems()"
+      (delete)="checklistItemService.remove$.next($event)"
+      (edit)="checklistItemBeingEdited.set($event)"
+      (toggle)="checklistItemService.toggle$.next($event)"
+    />
     }
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
       <ng-template>
@@ -33,10 +38,15 @@ import { ChecklistItemListComponent } from './ui/checklist-item-list.component';
           [formGroup]="checklistItemForm"
           title="Crete item"
           (save)="
-            checklistItemService.add$.next({
-              item: checklistItemForm.getRawValue(),
-              checklistId: checklist()?.id!
-            })
+            checklistItemBeingEdited()?.id
+        ? checklistItemService.edit$.next({
+          id: checklistItemBeingEdited()!.id!,
+          data: checklistItemForm.getRawValue(),
+        })
+        : checklistItemService.add$.next({
+          item: checklistItemForm.getRawValue(),
+          checklistId: checklist()?.id!,
+        })
           "
           (close)="checklistItemBeingEdited.set(null)"
         />
@@ -75,6 +85,10 @@ export default class ChecklistComponent {
       const checklistItem = this.checklistItemBeingEdited();
       if (!checklistItem) {
         this.checklistItemForm.reset();
+      } else {
+        this.checklistItemForm.patchValue({
+          title: checklistItem.title,
+        });
       }
     });
   }

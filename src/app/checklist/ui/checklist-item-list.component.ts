@@ -15,9 +15,14 @@ import {
             @if (checklistItem.checked){
             <span>✅</span>
             } @else {
-                <span>🟩</span>
+            <span>🟩</span>
             }
             {{ checklistItem.title }}
+            <div>
+              <button (click)="toggle.emit(checklistItem.id)">Toggle</button>
+              <button (click)="edit.emit(checklistItem)">Edit</button>
+              <button (click)="delete.emit(checklistItem.id)">Delete</button>
+            </div>
           </div>
         </li>
         } @empty {
@@ -34,4 +39,6 @@ import {
 export class ChecklistItemListComponent {
   @Input({ required: true }) checklistItems!: ChecklistItem[];
   @Output() toggle = new EventEmitter<ChecklistItemId>();
+  @Output() delete = new EventEmitter<ChecklistItemId>();
+  @Output() edit = new EventEmitter<ChecklistItem>();
 }

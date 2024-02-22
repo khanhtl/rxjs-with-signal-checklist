@@ -19,13 +19,24 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
           [formGroup]="checklistForm"
           [title]="checklistBeingEdited()?.title || 'Add Checklist'"
           (close)="checklistBeingEdited.set(null)"
-          (save)="checklistService.add$.next(checklistForm.getRawValue())"
+          (save)="
+            checklistBeingEdited()?.id
+              ? checklistService.edit$.next({
+                  id: checklistBeingEdited()!.id!,
+                  data: checklistForm.getRawValue()
+                })
+              : checklistService.add$.next(checklistForm.getRawValue())
+          "
         ></app-form-modal>
       </ng-template>
     </app-modal>
     <section>
-        <h2>Your checklists</h2>
-        <app-checklist-list [checklists]="checklistService.checklists()" />
+      <h2>Your checklists</h2>
+      <app-checklist-list
+        (delete)="checklistService.remove$.next($event)"
+        (edit)="checklistBeingEdited.set($event)"
+        [checklists]="checklistService.checklists()"
+      />
     </section>
   `,
   styles: [``],
@@ -43,6 +54,10 @@ export default class HomeComponent {
       const checklist = this.checklistBeingEdited();
       if (!checklist) {
         this.checklistForm.reset();
+      } else {
+        this.checklistForm.patchValue({
+          title: checklist.title,
+        });
       }
     });
   }
